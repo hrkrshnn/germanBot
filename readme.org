@@ -1,0 +1,4 @@
+* germanBot
+  A bot that will suggest spelling and grammatical mistakes in Deutsch. This
+  will be used as a telegram bot. It uses [[https://github.com/languagetool-org/languagetool][LanguageTool]] for the grammar checks
+  and [[https://github.com/reo7sp/tgbot-cpp][tgbot-cpp]] for the telegram bot cpp interface. License: GPL-v3
