@@ -24,6 +24,7 @@ namespace langtool
   using namespace boost::asio;
 
   // From https://stackoverflow.com/questions/154536/encode-decode-urls-in-c
+  // Encodes a string into a url format.
   std::string url_encode(const std::string &value)
   {
     std::ostringstream escaped;
@@ -48,21 +49,18 @@ namespace langtool
     return escaped.str();
   }
 
-  // request the langtool server, str should be + separated, e.g.,
-  // Ich+habe+ein+Frage.
-
   // Return value: JSON string.
   std::string requestServer(const std::string& str)
   {
     try
       {
         // send request
-        std::cout<<str<<"\n";
+        std::cout << str << "\n";
         ip::tcp::iostream request;
         request.connect(auth::host, auth::port);
 
         std::string encodedUrl = url_encode(str);
-        std::cout<<"Encoded: "<<encodedUrl<<"\n";
+        std::cout << "Encoded: " << encodedUrl << "\n";
 
         request << "GET " << "/v2/check?language=de-DE&text=" << encodedUrl;
         request << " Content-Type: text/html; charset=utf-8\r\n";
@@ -93,18 +91,18 @@ namespace langtool
       }
     catch(std::exception& e)
       {
-        std::cerr<<"Error: "<<e.what()<<"\n";
+        std::cerr << "Error: " << e.what() << "\n";
         return "";
       }
 
   }
 
-  // TODO, perhaps this should be a reference to the message?
-  std::string grammarCheck(std::string str = "Hallo")
+
+  std::string grammarCheck(const std::string str = "Hallo")
   {
     std::stringstream ss;
     auto json = requestServer(str);
-    ss<<json;
+    ss << json;
 
     std::string output;
 
@@ -116,7 +114,7 @@ namespace langtool
         // If langtool thinks the text isn't in german, then no corrections will
         // be provided.
         auto code = root.get<std::string>("language.detectedLanguage.code");
-        std::cout<<"Code: "<<code<<"\n";
+        std::cout << "Language code: " << code << "\n";
         if(code != "de-DE")
           return "";
 
@@ -144,7 +142,7 @@ namespace langtool
           }
 
         if(!output.empty())
-          std::cout<<output<<"\n";
+          std::cout << "Bot reply: " << output << "\n";
 
         return output;
       }
@@ -154,7 +152,6 @@ namespace langtool
         return "";
       }
   }
-
 
 } // namespace langtool
 

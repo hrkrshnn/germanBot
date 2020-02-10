@@ -14,7 +14,7 @@ int main()
 
   bot.getEvents().onCommand("start", [&bot](TgBot::Message::Ptr message)
                                      {
-                                       bot.getApi().sendMessage(message->chat->id, "Hi!");
+                                       bot.getApi().sendMessage(message->chat->id, "Wilkommen!");
                                      });
 
   bot.getEvents().onAnyMessage([&bot](TgBot::Message::Ptr message)
@@ -28,28 +28,27 @@ int main()
                                    bot.getApi().sendMessage(message->chat->id, output, false, message->messageId);
                                });
 
-  // TODO: Figure out how to deal with these signals
-  signal(SIGINT, [](int s)
+  signal(SIGINT, [](int signum)
                  {
-                   std::cerr<<"SIGINT caught\n";
-                   std::exit(0);
+                   std::cerr << "SIGINT caught\n";
+                   std::exit(signum);
                  });
 
   try
     {
-      std::cout<<"Bot username: "<<bot.getApi().getMe()->username<<"\n";
+      std::cout << "Bot username: " << bot.getApi().getMe()->username << "\n";
       bot.getApi().deleteWebhook();
 
       TgBot::TgLongPoll longPoll(bot);
       while (true)
         {
-          printf("Long poll started\n");
+          std::cout << "Long Polling.\n";
           longPoll.start();
         }
     }
   catch (std::exception& e)
     {
-      std::cerr<<"Error: "<<e.what()<<"\n";
+      std::cerr << "Error: " << e.what() << "\n";
     }
 
   return 0;
