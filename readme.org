@@ -32,3 +32,8 @@
   
    You can run the program with the command `./germanBot` inside the build
    folder.
+** Examples
+   - Me: "Ich wohnen in Berlin."
+   - Bot: "Ich wohnen -> Ich wohne/Ich wohnte/Wir wohnen/Sie wohnen."
+   - Me: "Hast du eine Apfel?"
+   - Bot: eine Apfel -> ein Apfel/einem Apfel/einen Apfel.
