@@ -138,7 +138,7 @@ namespace langtool
             // The last / is replaced by a fullstop.
             output.back() = '.';
 
-            output += "\n";
+            output += "\n\n";
           }
 
         if(!output.empty())
