@@ -4,11 +4,15 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <cctype>
+#include <iomanip>
+
 
 // #include <curl/curl.h>
 #include <boost/asio.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/locale.hpp>
 
 #include "auth.hpp"
 
@@ -18,6 +22,31 @@ namespace langtool
 
   namespace pt = boost::property_tree;
   using namespace boost::asio;
+
+  // From https://stackoverflow.com/questions/154536/encode-decode-urls-in-c
+  std::string url_encode(const std::string &value)
+  {
+    std::ostringstream escaped;
+    escaped.fill('0');
+    escaped << std::hex;
+
+    for (std::string::const_iterator i = value.begin(), n = value.end(); i != n; ++i) {
+      std::string::value_type c = (*i);
+
+      // Keep alphanumeric and other accepted characters intact
+      if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+        escaped << c;
+        continue;
+      }
+
+      // Any other characters are percent-encoded
+      escaped << std::uppercase;
+      escaped << '%' << std::setw(2) << int((unsigned char) c);
+      escaped << std::nouppercase;
+    }
+
+    return escaped.str();
+  }
 
   // request the langtool server, str should be + separated, e.g.,
   // Ich+habe+ein+Frage.
@@ -32,8 +61,11 @@ namespace langtool
         ip::tcp::iostream request;
         request.connect(auth::host, auth::port);
 
-        request << "GET " << "/v2/check?language=de-DE&text=" << str;
-        request << " HTTP/1.1\r\n";
+        std::string encodedUrl = url_encode(str);
+        std::cout<<"Encoded: "<<encodedUrl<<"\n";
+
+        request << "GET " << "/v2/check?language=de-DE&text=" << encodedUrl;
+        request << " Content-Type: text/html; charset=utf-8\r\n";
         request << "Connection: close\r\n\r\n";
         request.flush();
 
@@ -71,10 +103,12 @@ namespace langtool
   std::string grammarCheck(std::string str = "Hallo")
   {
     // change spaces into plus for a proper HTTP request
-    std::replace(str.begin(), str.end(), ' ', '+');
+    // std::replace(str.begin(), str.end(), ' ', '+');
 
     std::stringstream ss;
-    ss<<requestServer(str);
+    auto json = requestServer(str);
+    // std::string jsonUTF = boost::locale::conv::to_utf<char>(json);
+    ss<<json;
 
     std::string output;
 
@@ -90,14 +124,15 @@ namespace langtool
 
         for(const auto& val: root.get_child("matches"))
           {
-            auto message = val.second.get<std::string>("message");
-            std::cout<<message<<"\n";
+            // auto message = val.second.get<std::string>("message");
+            // std::cout<<message<<"\n";
 
             auto text = val.second.get<std::string>("context.text");
             auto offset = val.second.get<std::size_t>("context.offset");
             auto length = val.second.get<std::size_t>("context.length");
 
-            auto mistake = text.substr(offset, length);
+            std::u32string part = boost::locale::conv::utf_to_utf<char32_t>(text);
+            auto mistake = boost::locale::conv::utf_to_utf<char>(part.substr(offset, length));
 
             output += mistake + " -> ";
 
@@ -112,8 +147,8 @@ namespace langtool
             output += "\n";
           }
 
-        if(output.empty())
-            std::cout<<output<<"\n";
+        if(!output.empty())
+          std::cout<<output<<"\n";
 
         return output;
       }
