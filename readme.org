@@ -3,6 +3,32 @@
   will be used as a telegram bot. It uses [[https://github.com/languagetool-org/languagetool][LanguageTool]] for the grammar checks
   and [[https://github.com/reo7sp/tgbot-cpp][tgbot-cpp]] for the telegram bot cpp interface. License: GPL-v3
 
-* Things to implement
-  1. wchar instead of char
+** Requirements 
+   Most requirements come from the cpp implementation of tgbot-cpp, go to its
+   repo to see the requirements.
+
+   1. Boost libraries, namely *boost/locale*
+
+** Configuration
+   If you are trying to run your own version of the bot, then you will need to
+   have a telegram bot and it's API key. More details in [[https://core.telegram.org/bots][Telegram bot
+   documentation]].
   
+   On top of that, you'll need your own LanguageTool server or pay for the
+   langtool servers. See LanguageTool's GitHub on details on setting up your own
+   server.
+  
+   Both the bot key and the langtool server and ports need to be configured in
+   `src/auth.hpp.`
+** Compiling
+   Needs CMake.
+
+   #+BEGIN_SRC bash
+   mkdir build
+   cd build
+   cmake ..
+   make
+   #+END_SRC
+  
+   You can run the program with the command `./germanBot` inside the build
+   folder.

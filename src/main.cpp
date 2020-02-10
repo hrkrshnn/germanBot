@@ -19,10 +19,10 @@ int main()
 
   bot.getEvents().onAnyMessage([&bot](TgBot::Message::Ptr message)
                                {
-                                 std::cout<<"User wrote: "<<message<<"\n";
+                                 std::cout<<"User wrote: "<<message->text<<"\n";
                                  if (StringTools::startsWith(message->text, "/start"))
                                    return;
-                                 // bot.getApi().sendMessage(message->chat->id, "Your message is: " + message->text, false, message->messageId);
+
                                  auto output = langtool::grammarCheck(message->text);
                                  if(!output.empty())
                                    bot.getApi().sendMessage(message->chat->id, output, false, message->messageId);

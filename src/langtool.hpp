@@ -102,12 +102,8 @@ namespace langtool
   // TODO, perhaps this should be a reference to the message?
   std::string grammarCheck(std::string str = "Hallo")
   {
-    // change spaces into plus for a proper HTTP request
-    // std::replace(str.begin(), str.end(), ' ', '+');
-
     std::stringstream ss;
     auto json = requestServer(str);
-    // std::string jsonUTF = boost::locale::conv::to_utf<char>(json);
     ss<<json;
 
     std::string output;
@@ -117,6 +113,8 @@ namespace langtool
         pt::ptree root;
         pt::read_json(ss, root);
 
+        // If langtool thinks the text isn't in german, then no corrections will
+        // be provided.
         auto code = root.get<std::string>("language.detectedLanguage.code");
         std::cout<<"Code: "<<code<<"\n";
         if(code != "de-DE")
@@ -124,9 +122,6 @@ namespace langtool
 
         for(const auto& val: root.get_child("matches"))
           {
-            // auto message = val.second.get<std::string>("message");
-            // std::cout<<message<<"\n";
-
             auto text = val.second.get<std::string>("context.text");
             auto offset = val.second.get<std::size_t>("context.offset");
             auto length = val.second.get<std::size_t>("context.length");
@@ -135,7 +130,6 @@ namespace langtool
             auto mistake = boost::locale::conv::utf_to_utf<char>(part.substr(offset, length));
 
             output += mistake + " -> ";
-
 
             for(const auto& replacements: val.second.get_child("replacements"))
               {
