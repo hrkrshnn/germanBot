@@ -134,9 +134,11 @@ namespace langtool
             for(const auto& replacements: val.second.get_child("replacements"))
               {
                 auto val = replacements.second.get<std::string>("value");
-                output += val;
-                break;
+                output += val + "/";
               }
+
+            // The last / is replaced by a fullstop.
+            output.back() = '.';
 
             output += "\n";
           }
