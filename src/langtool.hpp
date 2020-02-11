@@ -55,7 +55,6 @@ namespace langtool
     try
       {
         // send request
-        std::cout << str << "\n";
         ip::tcp::iostream request;
         request.connect(auth::host, auth::port);
 
@@ -85,7 +84,7 @@ namespace langtool
 
         std::string jsonString;
         std::getline(request, jsonString);
-        std::cout << "Output JSON: " << jsonString << "\n";
+        std::cout << "\nOutput JSON: " << jsonString << "\n";
 
         return jsonString;
       }
@@ -142,7 +141,7 @@ namespace langtool
           }
 
         if(!output.empty())
-          std::cout << "Bot reply: " << output << "\n";
+          std::cout << "\nBot reply: " << output << "\n";
 
         return output;
       }

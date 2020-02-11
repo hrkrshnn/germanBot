@@ -24,11 +24,14 @@ int main()
 
   bot.getEvents().onAnyMessage([&bot](TgBot::Message::Ptr message)
                                {
-                                 std::cout<<"User wrote: "<<message->text<<"\n";
+                                 std::cout << message->chat->username << " wrote: "
+                                           << message->text << "\n";
+
                                  if (StringTools::startsWith(message->text, "/start"))
                                    return;
 
                                  auto output = langtool::grammarCheck(message->text);
+
                                  if(!output.empty())
                                    bot.getApi().sendMessage(message->chat->id, output, false, message->messageId);
                                });
