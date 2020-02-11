@@ -128,14 +128,21 @@ namespace langtool
 
             output += mistake + " -> ";
 
-            for(const auto& replacements: val.second.get_child("replacements"))
+            bool isReplacementEmpty = true;
+            for(const auto& replacement: val.second.get_child("replacements"))
               {
-                auto val = replacements.second.get<std::string>("value");
+                isReplacementEmpty = false;
+                auto val = replacement.second.get<std::string>("value");
                 output += val + "/";
               }
 
-            // The last / is replaced by a fullstop.
-            output.back() = '.';
+            // If LangTool suggests no replacements, the description is sent so
+            // that the person can understand that there is an error.
+            if(isReplacementEmpty)
+                output += val.second.get<std::string>("message");
+            else
+              output.back() = '.';
+            // the last / is replaced by a dot
 
             output += "\n\n";
           }
