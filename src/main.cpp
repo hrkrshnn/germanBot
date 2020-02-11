@@ -12,9 +12,14 @@ int main()
 {
   TgBot::Bot bot(auth::token);
 
-  bot.getEvents().onCommand("start", [&bot](TgBot::Message::Ptr message)
+  std::string welcomeString("Herzlich willkommen! You can write in this chat and"
+ " I'll reply with all the spelling and grammatical mistakes that I found with"
+ " suggestions for replacements. The project is licensed under GPL-v3 and can be"
+ " found at https://github.com/hrkrshnn/germanBot");
+
+  bot.getEvents().onCommand("start", [&bot, &welcomeString](TgBot::Message::Ptr message)
                                      {
-                                       bot.getApi().sendMessage(message->chat->id, "Wilkommen!");
+                                       bot.getApi().sendMessage(message->chat->id, welcomeString);
                                      });
 
   bot.getEvents().onAnyMessage([&bot](TgBot::Message::Ptr message)
