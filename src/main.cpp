@@ -19,12 +19,19 @@ int main()
 
   bot.getEvents().onCommand("start", [&bot, &welcomeString](TgBot::Message::Ptr message)
                                      {
-                                       bot.getApi().sendMessage(message->chat->id, welcomeString);
+                                       try
+                                         {
+                                           bot.getApi().sendMessage(message->chat->id, welcomeString);
+                                         }
+                                       catch(std::exception& e)
+                                         {
+                                           std::cerr << "Error in sending\n" << e.what() << "\n";
+                                         }
                                      });
 
   bot.getEvents().onAnyMessage([&bot](TgBot::Message::Ptr message)
                                {
-                                 std::cout << message->chat->username << " wrote: "
+                                 std::cout << message->from->firstName << " wrote: "
                                            << message->text << "\n";
 
                                  if (StringTools::startsWith(message->text, "/start"))
@@ -33,7 +40,16 @@ int main()
                                  auto output = langtool::grammarCheck(message->text);
 
                                  if(!output.empty())
-                                   bot.getApi().sendMessage(message->chat->id, output, false, message->messageId);
+                                   {
+                                     try
+                                       {
+                                         bot.getApi().sendMessage(message->chat->id, output, false, message->messageId);
+                                       }
+                                     catch (std::exception& e)
+                                       {
+                                         std::cerr << "Error in sending\n" << e.what() << "\n";
+                                       }
+                                   }
                                });
 
   signal(SIGINT, [](int signum)
