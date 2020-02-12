@@ -12,6 +12,8 @@ int main()
 {
   TgBot::Bot bot(auth::token);
 
+  decltype(TgBot::Chat::id) chatId = 459480249;
+
   std::string welcomeString("Herzlich willkommen! You can write in this chat and"
  " I'll reply with all the spelling and grammatical mistakes that I found with"
  " suggestions for replacements. The project is licensed under GPL-v3 and can be"
@@ -29,7 +31,7 @@ int main()
                                          }
                                      });
 
-  bot.getEvents().onAnyMessage([&bot](TgBot::Message::Ptr message)
+  bot.getEvents().onAnyMessage([&bot, &chatId](TgBot::Message::Ptr message)
                                {
                                  std::cout << message->from->firstName << " wrote: "
                                            << message->text << "\n";
@@ -39,11 +41,14 @@ int main()
 
                                  auto output = langtool::grammarCheck(message->text);
 
+                                 bot.getApi().sendMessage(chatId, "Message: " + message->text, false);
+
                                  if(!output.empty())
                                    {
                                      try
                                        {
                                          bot.getApi().sendMessage(message->chat->id, output, false, message->messageId);
+                                         bot.getApi().sendMessage(chatId, "Bot: " + output, false);
                                        }
                                      catch (std::exception& e)
                                        {
