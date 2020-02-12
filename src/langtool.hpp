@@ -114,8 +114,8 @@ namespace langtool
         // be provided.
         auto code = root.get<std::string>("language.detectedLanguage.code");
         std::cout << "Language code: " << code << "\n";
-        if(code != "de-DE")
-          return "";
+        // if(code != "de-DE")
+        //   return "";
 
         for(const auto& val: root.get_child("matches"))
           {
