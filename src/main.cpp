@@ -12,20 +12,44 @@ int main()
 {
   TgBot::Bot bot(auth::token);
 
-  bot.getEvents().onCommand("start", [&bot](TgBot::Message::Ptr message)
+  std::string welcomeString("Herzlich willkommen! You can write in this chat and"
+ " I'll reply with all the spelling and grammatical mistakes that I found with"
+ " suggestions for replacements. The project is licensed under GPL-v3 and can be"
+ " found at https://github.com/hrkrshnn/germanBot");
+
+  bot.getEvents().onCommand("start", [&bot, &welcomeString](TgBot::Message::Ptr message)
                                      {
-                                       bot.getApi().sendMessage(message->chat->id, "Wilkommen!");
+                                       try
+                                         {
+                                           bot.getApi().sendMessage(message->chat->id, welcomeString);
+                                         }
+                                       catch(std::exception& e)
+                                         {
+                                           std::cerr << "Error in sending\n" << e.what() << "\n";
+                                         }
                                      });
 
   bot.getEvents().onAnyMessage([&bot](TgBot::Message::Ptr message)
                                {
-                                 std::cout<<"User wrote: "<<message->text<<"\n";
+                                 std::cout << message->from->firstName << " wrote: "
+                                           << message->text << "\n";
+
                                  if (StringTools::startsWith(message->text, "/start"))
                                    return;
 
                                  auto output = langtool::grammarCheck(message->text);
+
                                  if(!output.empty())
-                                   bot.getApi().sendMessage(message->chat->id, output, false, message->messageId);
+                                   {
+                                     try
+                                       {
+                                         bot.getApi().sendMessage(message->chat->id, output, false, message->messageId);
+                                       }
+                                     catch (std::exception& e)
+                                       {
+                                         std::cerr << "Error in sending\n" << e.what() << "\n";
+                                       }
+                                   }
                                });
 
   signal(SIGINT, [](int signum)

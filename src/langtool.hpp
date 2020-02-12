@@ -55,7 +55,6 @@ namespace langtool
     try
       {
         // send request
-        std::cout << str << "\n";
         ip::tcp::iostream request;
         request.connect(auth::host, auth::port);
 
@@ -85,7 +84,7 @@ namespace langtool
 
         std::string jsonString;
         std::getline(request, jsonString);
-        std::cout << "Output JSON: " << jsonString << "\n";
+        std::cout << "\nOutput JSON: " << jsonString << "\n";
 
         return jsonString;
       }
@@ -115,8 +114,8 @@ namespace langtool
         // be provided.
         auto code = root.get<std::string>("language.detectedLanguage.code");
         std::cout << "Language code: " << code << "\n";
-        if(code != "de-DE")
-          return "";
+        // if(code != "de-DE")
+        //   return "";
 
         for(const auto& val: root.get_child("matches"))
           {
@@ -129,20 +128,27 @@ namespace langtool
 
             output += mistake + " -> ";
 
-            for(const auto& replacements: val.second.get_child("replacements"))
+            bool isReplacementEmpty = true;
+            for(const auto& replacement: val.second.get_child("replacements"))
               {
-                auto val = replacements.second.get<std::string>("value");
+                isReplacementEmpty = false;
+                auto val = replacement.second.get<std::string>("value");
                 output += val + "/";
               }
 
-            // The last / is replaced by a fullstop.
-            output.back() = '.';
+            // If LangTool suggests no replacements, the description is sent so
+            // that the person can understand that there is an error.
+            if(isReplacementEmpty)
+                output += val.second.get<std::string>("message");
+            else
+              output.back() = '.';
+            // the last / is replaced by a dot
 
             output += "\n\n";
           }
 
         if(!output.empty())
-          std::cout << "Bot reply: " << output << "\n";
+          std::cout << "\nBot reply: " << output << "\n";
 
         return output;
       }
